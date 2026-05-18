@@ -1,0 +1,261 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { font-family: var(--font-sans); max-width: 620px; margin: 0 auto; padding: 1.5rem 0; }
+.prog-bg { background: var(--color-background-secondary); border-radius: 99px; height: 5px; margin-bottom: 2rem; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; background: #5b9e8a; transition: width 0.4s ease; }
+.q-label { font-size: 12px; color: var(--color-text-secondary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.q-text { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.5rem; line-height: 1.5; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.opt { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; cursor: pointer; text-align: left; display: flex; align-items: flex-start; gap: 10px; width: 100%; transition: border-color 0.15s, background 0.15s; }
+.opt:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
+.opt.sel { border: 1.5px solid #5b9e8a; background: #edf6f3; }
+.dot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); flex-shrink: 0; margin-top: 1px; transition: background 0.15s; }
+.opt.sel .dot { background: #5b9e8a; border-color: #5b9e8a; }
+.opt-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.4; }
+.nav { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+.btn { padding: 9px 22px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; font-size: 14px; cursor: pointer; color: var(--color-text-primary); transition: background 0.15s; font-family: inherit; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn-p { background: #5b9e8a; border-color: #5b9e8a; color: #fff; }
+.btn-p:hover { background: #4a8a78; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.count { font-size: 13px; color: var(--color-text-secondary); }
+.res-wrap { text-align: center; padding: 0.5rem 0 1rem; }
+.badge { display: inline-block; padding: 6px 18px; border-radius: 99px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.res-title { font-size: 24px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.4rem; }
+.res-desc { font-size: 15px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.2rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+.section { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin: 0.75rem 0; text-align: left; }
+.sec-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.07em; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 4px 10px; font-size: 13px; color: var(--color-text-primary); }
+.disclaimer { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); text-align: left; }
+.disc-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.disc-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">Cilt tipi testi — kendi cilt tipinizi keşfedin</h2>
+  <div id="area"></div>
+</div>
+
+<script>
+const qs = [
+  {
+    id: "wash",
+    text: "Yüzünüzü yıkadıktan 1 saat sonra cildiniz nasıl hissettiriyor?",
+    opts: [
+      { label: "Sıkı, çekik ve bazen pullanmış", v: "dry" },
+      { label: "Yağlı ve parlak, özellikle T bölgesi", v: "oily" },
+      { label: "Rahat, ne kuru ne yağlı", v: "normal" },
+      { label: "T bölgesi yağlı, yanaklar kuru veya normal", v: "combo" },
+      { label: "Kızarık, gergin veya rahatsız hissettiriyor", v: "sensitive" },
+    ]
+  },
+  {
+    id: "pores",
+    text: "Gözenekleriniz nasıl görünüyor?",
+    opts: [
+      { label: "Çok küçük, neredeyse görünmüyor", v: "dry" },
+      { label: "Büyük ve belirgin, özellikle burun çevresinde", v: "oily" },
+      { label: "Küçük ve belirli bölgelerde görünür", v: "normal" },
+      { label: "T bölgesinde büyük, yanaklarda küçük", v: "combo" },
+      { label: "Kızarıklık veya hassasiyet nedeniyle değişken", v: "sensitive" },
+    ]
+  },
+  {
+    id: "shine",
+    text: "Gün içinde cildiniz ne kadar parlar?",
+    opts: [
+      { label: "Hiç parlamaz, aksine mat ve sıkışık hissettiriyor", v: "dry" },
+      { label: "Çok parlar, birkaç saatte makyaj bozuluyor", v: "oily" },
+      { label: "Az ya da hiç parlama olmaz", v: "normal" },
+      { label: "Sadece alın, burun ve çene parlar", v: "combo" },
+      { label: "Bazen parlar bazen kurur, tutarsız", v: "sensitive" },
+    ]
+  },
+  {
+    id: "reaction",
+    text: "Yeni bir ürün denediğinizde cildiniz nasıl tepki verir?",
+    opts: [
+      { label: "Çoğunlukla iyi tepki verir, nadiren sorun çıkar", v: "normal" },
+      { label: "Soyulma veya gerilme hissedebilir", v: "dry" },
+      { label: "Beyazlamış, mat görünüm oluşabilir", v: "oily" },
+      { label: "Bölgeye göre farklı tepkiler verebilir", v: "combo" },
+      { label: "Kızarıklık, kaşıntı veya tahriş olabilir", v: "sensitive" },
+    ]
+  },
+  {
+    id: "feel",
+    text: "Nemlendirici kullanmadan cildiniz nasıl hissettiriyor?",
+    opts: [
+      { label: "Çok kuru, sıkışık ve rahatsız", v: "dry" },
+      { label: "İyi hissettiriyor, nemlendirici gerekmez gibi", v: "oily" },
+      { label: "Biraz kuru olabilir ama tolere edilebilir", v: "normal" },
+      { label: "Bazı bölgeler kuru, bazıları normal", v: "combo" },
+      { label: "Gergin ve hassas, bazen kızarıyor", v: "sensitive" },
+    ]
+  },
+  {
+    id: "acne",
+    text: "Sivilce veya tıkalı gözenek sorunu yaşıyor musunuz?",
+    opts: [
+      { label: "Nadiren, cildin kuru olması nedeniyle çok az", v: "dry" },
+      { label: "Sık sık, özellikle yağlı bölgelerde", v: "oily" },
+      { label: "Çok az ya da hiç", v: "normal" },
+      { label: "Sadece T bölgesinde ara sıra", v: "combo" },
+      { label: "Hassasiyete bağlı kızarıklık ve seyrek sivilce", v: "sensitive" },
+    ]
+  },
+  {
+    id: "weather",
+    text: "Hava değişikliklerinde cildiniz nasıl etkilenir?",
+    opts: [
+      { label: "Soğuk ve rüzgarda çok kurur, soyulabilir", v: "dry" },
+      { label: "Sıcakta daha çok yağlanır", v: "oily" },
+      { label: "Çok fazla etkilenmez", v: "normal" },
+      { label: "Farklı bölgeler farklı tepki verir", v: "combo" },
+      { label: "Her hava değişiminde belirgin tepki verir", v: "sensitive" },
+    ]
+  },
+];
+
+const results = {
+  dry: {
+    label: "KURU CİLT",
+    icon: "ti-droplet-off",
+    badgeColor: "#8b6fb5",
+    badgeBg: "#f3f0fb",
+    desc: "Cildiniz yeterli nem tutamıyor. Sıkı, mat ve bazen pullanmış bir his verebilir. Yoğun nemlendirici ve nazik bakım rutinleri size iyi gelir.",
+    care: ["Yoğun nemlendirici", "Hyaluronic asit serumu", "Yağ bazlı temizleyici", "Gece bakım kremi", "Nazik peeling (haftada 1)"],
+    avoid: ["Alkol içerikli tonikler", "Sert köpük temizleyiciler", "Aşırı sıcak su", "Retinol (başlangıçta)"],
+  },
+  oily: {
+    label: "YAĞLI CİLT",
+    icon: "ti-droplet",
+    badgeColor: "#5b9e8a",
+    badgeBg: "#edf6f3",
+    desc: "Sebum üretiminiz yüksek. Cildiniz parlak görünür ve gözenekler belirgindir. Hafif ve mat etkili ürünler ideal seçimdir.",
+    care: ["Hafif jel nemlendirici", "Salisilik asit temizleyici", "Matlaştırıcı primer", "Kil maskesi (haftada 1-2)", "Yağsız güneş kremi"],
+    avoid: ["Ağır yağ bazlı kremler", "Fazla scrub", "Nemlendirici atlamak", "Komedojenik ürünler"],
+  },
+  normal: {
+    label: "NORMAL CİLT",
+    icon: "ti-circle-check",
+    badgeColor: "#5b7fb5",
+    badgeBg: "#edf2fb",
+    desc: "Cildiniz dengeli nem ve yağ üretir. Ne çok kuru ne çok yağlı. Az sorun çıkarır, çoğu ürün size uyar.",
+    care: ["Hafif nemlendirici", "SPF 30+ güneş kremi", "Nazik temizleyici", "Haftalık maske", "Antioksidan serum"],
+    avoid: ["Çok ağır kremler", "Sert kimyasal peelingler", "Bakım rutinini ihmal etmek"],
+  },
+  combo: {
+    label: "KOMBİNE CİLT",
+    icon: "ti-adjustments-horizontal",
+    badgeColor: "#c97b63",
+    badgeBg: "#fdf3ef",
+    desc: "T bölgeniz (alın, burun, çene) yağlı, yanaklar ise normal veya kuru. Farklı bölgelere farklı bakım gerekebilir.",
+    care: ["Bölgeye göre nemlendirici", "Hafif köpük temizleyici", "T bölgesi için kil maskesi", "Yanaklara yoğun nem", "Dengeli tonik"],
+    avoid: ["Tüm yüze ağır krem sürmek", "Yalnızca yağlı cilde yönelik ürünler", "Sert alkollü tonikler"],
+  },
+  sensitive: {
+    label: "HASSASİYETLİ CİLT",
+    icon: "ti-heart-rate-monitor",
+    badgeColor: "#c97b9a",
+    badgeBg: "#fdf0f5",
+    desc: "Cildiniz dış etkenlere karşı çabuk tepki verir. Kızarıklık, kaşıntı veya gerginlik sık görülür. Nazik, koku içermeyen ürünler tercih edilmeli.",
+    care: ["Koku içermeyen ürünler", "Aloe vera jel", "Niacinamide serum", "Mineral güneş kremi", "Hypoallerjen kremler"],
+    avoid: ["Parfümlü ürünler", "Alkol içerikli tonikler", "Fiziksel peeling", "Yeni ürünleri direkt tüm yüze uygulamak"],
+  },
+};
+
+let answers = {};
+let cur = 0;
+
+function calcResult() {
+  const counts = { dry:0, oily:0, normal:0, combo:0, sensitive:0 };
+  Object.keys(answers).filter(k => !k.endsWith("_sel")).forEach(k => counts[answers[k]]++);
+  return Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+}
+
+function render(idx) {
+  const q = qs[idx];
+  const pct = Math.round((idx / qs.length) * 100);
+  document.getElementById("area").innerHTML = `
+    <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <div class="q-label">Soru ${idx+1} / ${qs.length}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="opts" id="opts"></div>
+    <div class="nav">
+      <button class="btn" ${idx===0?"disabled":""} onclick="goBack()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Geri</button>
+      <span class="count" id="cnt"></span>
+      <button class="btn btn-p" id="nxt" disabled onclick="goNext()">İleri <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+    </div>
+  `;
+  const optsEl = document.getElementById("opts");
+  q.opts.forEach((o, i) => {
+    const key = o.v + "_" + i;
+    const sel = answers[q.id + "_sel"] === key;
+    const card = document.createElement("button");
+    card.className = "opt" + (sel ? " sel" : "");
+    card.setAttribute("data-key", key);
+    card.innerHTML = `<span class="dot"></span><span class="opt-text">${o.label}</span>`;
+    card.onclick = () => pick(o.v, key, q.id);
+    optsEl.appendChild(card);
+  });
+  if (answers[q.id + "_sel"]) document.getElementById("nxt").disabled = false;
+  updateCnt();
+}
+
+function pick(v, key, qid) {
+  answers[qid] = v;
+  answers[qid + "_sel"] = key;
+  document.querySelectorAll(".opt").forEach(c => c.classList.toggle("sel", c.getAttribute("data-key") === key));
+  document.getElementById("nxt").disabled = false;
+  updateCnt();
+}
+
+function updateCnt() {
+  const done = Object.keys(answers).filter(k => !k.endsWith("_sel")).length;
+  const el = document.getElementById("cnt");
+  if (el) el.textContent = done + " / " + qs.length + " yanıtlandı";
+}
+
+function goNext() {
+  if (cur < qs.length - 1) { cur++; render(cur); }
+  else renderResult();
+}
+
+function goBack() {
+  if (cur > 0) { cur--; render(cur); }
+}
+
+function renderResult() {
+  const type = calcResult();
+  const r = results[type];
+  const careTags = r.care.map(t => `<span class="tag">${t}</span>`).join("");
+  const avoidTags = r.avoid.map(t => `<span class="tag">${t}</span>`).join("");
+  document.getElementById("area").innerHTML = `
+    <div class="prog-bg"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="res-wrap">
+      <div class="badge" style="background:${r.badgeBg};color:${r.badgeColor}">${r.label}</div>
+      <div class="res-title"><i class="ti ${r.icon}" aria-hidden="true"></i> ${r.label.charAt(0) + r.label.slice(1).toLowerCase()}</div>
+      <div class="res-desc">${r.desc}</div>
+      <div class="section">
+        <div class="sec-title"><i class="ti ti-check" aria-hidden="true"></i> Önerilen bakım adımları</div>
+        <div class="tags">${careTags}</div>
+      </div>
+      <div class="section">
+        <div class="sec-title"><i class="ti ti-x" aria-hidden="true"></i> Dikkat edilmesi gerekenler</div>
+        <div class="tags">${avoidTags}</div>
+      </div>
+      <div class="disclaimer">
+        <div class="disc-title"><i class="ti ti-stethoscope" aria-hidden="true"></i> Önemli not</div>
+        <div class="disc-text">Bu test yalnızca genel bilgi amaçlıdır ve bilimsel bir tanı niteliği taşımaz. Cilt tipinizi kesin olarak belirlemek, özellikle hassasiyet, akne veya kronik cilt sorunlarınız varsa bir <strong>dermatolog</strong> veya cilt uzmanıyla görüşmenizi öneririz. Profesyonel bir değerlendirme size en uygun bakım rutinini belirlemenizde çok daha sağlıklı bir yol gösterecektir.</div>
+      </div>
+      <button class="btn" style="margin-top:1.5rem" onclick="restart()"><i class="ti ti-refresh" aria-hidden="true"></i> Testi yeniden başlat</button>
+    </div>
+  `;
+}
+
+function restart() { answers = {}; cur = 0; render(0); }
+render(0);
+</script>
